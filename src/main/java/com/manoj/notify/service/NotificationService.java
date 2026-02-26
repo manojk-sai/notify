@@ -4,15 +4,17 @@ import com.manoj.notify.dto.NotificationRequest;
 import com.manoj.notify.model.Notification;
 import com.manoj.notify.model.NotificationStatus;
 import com.manoj.notify.repository.NotificationRepository;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
-@NoArgsConstructor
 public class NotificationService {
-    private NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
+
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
     public Notification createPendingNotification(NotificationRequest request) {
         Notification notification = new Notification();
