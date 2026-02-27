@@ -62,25 +62,12 @@ public class NotificationWorker {
         }
     }
 
-    private void process(Notification notification) {
-
-        try {
-            ChannelType channelType = ChannelType.valueOf(notification.getChannel());
-            notificationService.sendNotification(notification, channelType);
-            notification.setStatus(NotificationStatus.SENT);
-
-        } catch (Exception e) {
-            //handleRetry(notification);
-        }
-    }
-
     private void sendNotification(Notification notification) {
-        LOGGER.info(
-                "Processing notification id={} userId={} channel={} type={}",
-                notification.getId(),
-                notification.getUserId(),
-                notification.getChannel(),
-                notification.getType()
-        );
+        ChannelType channelType = ChannelType.valueOf(notification.getChannel());
+        try {
+            notificationService.sendNotification(notification, channelType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

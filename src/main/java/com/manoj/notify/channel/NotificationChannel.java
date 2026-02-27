@@ -1,6 +1,7 @@
 package com.manoj.notify.channel;
 
 import com.manoj.notify.model.Notification;
+import com.manoj.notify.model.User;
 
 public interface NotificationChannel {
     ChannelType getType();

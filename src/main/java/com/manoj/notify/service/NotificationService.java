@@ -28,7 +28,7 @@ public class NotificationService {
         notification.setUserId(request.getUserId());
         notification.setType(request.getType());
         notification.setData(request.getData());
-        notification.setChannel(request.getChannel());
+        notification.setChannel(resolveChannel(request.getChannel()).name());
         notification.setCreatedAt(LocalDateTime.now());
         notification.setStatus(NotificationStatus.PENDING);
         notification.setNextRetryAt(LocalDateTime.now());
@@ -37,8 +37,14 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public void sendNotification(Notification notification, ChannelType channelType) throws Exception {
+    private ChannelType resolveChannel(String requestChannel) {
+        if(requestChannel == null || requestChannel.isEmpty()) {
+            return ChannelType.EMAIL;
+        }
+        return ChannelType.valueOf(requestChannel.trim().toUpperCase());
+    }
 
+    public void sendNotification(Notification notification, ChannelType channelType) throws Exception {
         NotificationChannel channel = channelFactory.getChannel(channelType);
         channel.sendNotification(notification);
     }
