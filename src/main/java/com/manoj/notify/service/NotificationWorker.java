@@ -1,11 +1,11 @@
 package com.manoj.notify.service;
 
+import com.manoj.notify.channel.ChannelType;
 import com.manoj.notify.model.Notification;
 import com.manoj.notify.model.NotificationStatus;
 import com.manoj.notify.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +19,13 @@ public class NotificationWorker {
     private static final int MAX_RETRIES = 3;
 
     private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
-    public NotificationWorker(NotificationRepository notificationRepository) {
+    public NotificationWorker(
+            NotificationRepository notificationRepository,
+            NotificationService notificationService) {
         this.notificationRepository = notificationRepository;
+        this.notificationService = notificationService;
     }
 
     @Scheduled(fixedDelayString = "${notify.worker.poll-interval-ms:5000}")
@@ -55,6 +59,18 @@ public class NotificationWorker {
 
             LOGGER.error("Failed to process notification {}", notification.getId(), ex);
             notificationRepository.save(notification);
+        }
+    }
+
+    private void process(Notification notification) {
+
+        try {
+            ChannelType channelType = ChannelType.valueOf(notification.getChannel());
+            notificationService.sendNotification(notification, channelType);
+            notification.setStatus(NotificationStatus.SENT);
+
+        } catch (Exception e) {
+            //handleRetry(notification);
         }
     }
 
